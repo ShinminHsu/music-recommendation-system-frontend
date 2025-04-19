@@ -39,14 +39,23 @@ with tab2:
 
     if st.button("取得推薦歌曲") and selected_user:
         try:
-            rec_response = requests.get(f"{FASTAPI_URL}/users/{selected_user}/recommendations", params={"limit": 10})
+            rec_response = requests.get(f"{FASTAPI_URL}/users/{selected_user}/recommendations")
             if rec_response.status_code == 200:
-                recommendations = rec_response.json()
-                if recommendations:
-                    st.success("推薦結果：")
-                    st.table(recommendations)
-                else:
-                    st.warning("查無推薦結果")
+                data = rec_response.json()
+                st.subheader("✨ 推薦歌曲")
+                
+                for item in data:
+                    song = item["song"]
+                    artist_name = item["artist_name"]
+
+                    with st.container():
+                        st.markdown(f"""
+                        <div style='border: 1px solid #ddd; padding: 16px; border-radius: 12px; margin-bottom: 12px; background-color: #f9f9f9;'>
+                            <h4 style='margin-bottom: 4px; font-size: 20px;'>🎵 {song['song_title']} </h4>
+                            <p style='margin: 0; font-size: 16px;'><b>{artist_name}</b></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+
             else:
                 st.error(f"取得推薦失敗：{rec_response.status_code}")
         except Exception as e:
@@ -60,8 +69,21 @@ with tab2:
         try:
             songs_response = requests.get(f"{FASTAPI_URL}/songs", params={"skip": 0, "limit": 10})
             if songs_response.status_code == 200:
-                songs = songs_response.json()
-                st.table(songs[:10])
+                data = songs_response.json()
+
+                cols = st.columns(5)  # 5 columns for a 5x2 grid
+                for idx, item in enumerate(data):
+                    song = item["song"]
+                    artist_name = item["artist_name"]
+                    col = cols[idx % 5]  # Cycle through the 5 columns
+                    with col:
+                        st.markdown(f"""
+                        <div style='border: 1px solid #ddd; padding: 16px; border-radius: 12px; margin-bottom: 12px; background-color: #f9f9f9; height: 200px; display: flex; flex-direction: column; justify-content: space-between;'>
+                            <h4 style='margin-bottom: 4px; font-size: 20px;'>🎵 {song['song_title']} </h4>
+                            <p style='margin: 0; font-size: 16px;'><b>{artist_name}</b></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+
             else:
                 st.error(f"取得失敗：{songs_response.status_code}")
         except Exception as e:
