@@ -1,7 +1,10 @@
 import streamlit as st
 import requests
+from dotenv import load_dotenv
+import os
 
-FASTAPI_URL = "http://localhost:8000"
+load_dotenv()
+FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="音樂推薦系統", layout="wide")
 st.title("🎵 音樂推薦系統")
